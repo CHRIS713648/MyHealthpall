@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyHealthPal - Your Health Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            margin: 0;
+            font-size: 0.9em;
+            text-align: center;
+            border-radius: 0;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .user .avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .assistant .avatar {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .message-content {
+            background: white;
+            border-radius: 18px;
+            padding: 15px 20px;
+            max-width: 70%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            line-height: 1.5;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .input-box {
+            flex: 1;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 16px;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .input-box:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: #4facfe;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-size: 1.1em;
+        }
+
+        .welcome-message h3 {
+            color: #4facfe;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .header {
+                border-radius: 0;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 MyHealthPal</h1>
+            <p>Your trusted health information assistant</p>
+        </div>
+        
+        <div class="disclaimer">
+            <strong>⚠️ Important:</strong> This is for informational purposes only. Always consult healthcare professionals for medical advice.
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-message">
+                <h3>👩‍⚕️ Welcome to MyHealthPal!</h3>
+                <p>I'm here to provide general health information and guidance. Feel free to ask about symptoms, conditions, wellness tips, or any health-related questions you might have.</p>
+                <p><em>Remember: This is not a substitute for professional medical advice.</em></p>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="avatar">
+                <span>🏥</span>
+            </div>
+            <div>
+                MyHealthPal is typing
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <textarea 
+                class="input-box" 
+                id="messageInput" 
+                placeholder="Ask me about your health concerns..."
+                rows="1"
+            ></textarea>
+            <button class="send-btn" id="sendBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Health knowledge base with responses
+        const healthResponses = {
+            // Symptoms
+            'headache': "Headaches can have various causes including stress, dehydration, lack of sleep, eye strain, or underlying conditions. Try drinking water, resting in a dark room, and applying a cold or warm compress. If headaches are severe, frequent, or accompanied by other symptoms like fever, vision changes, or neck stiffness, please consult a healthcare provider.",
+            
+            'fever': "A fever is your body's natural response to infection. For adults, a fever is generally considered 100.4°F (38°C) or higher. Stay hydrated, rest, and consider over-the-counter fever reducers like acetaminophen or ibuprofen. Seek medical attention if fever exceeds 103°F (39.4°C), lasts more than 3 days, or is accompanied by severe symptoms.",
+            
+            'cough': "Coughs can be caused by infections, allergies, acid reflux, or other conditions. Stay hydrated, use honey (for adults), and consider a humidifier. See a doctor if the cough persists for more than 3 weeks, produces blood, or is accompanied by high fever, difficulty breathing, or chest pain.",
+            
+            'stomach pain': "Stomach pain can result from various causes including indigestion, food poisoning, stress, or more serious conditions. Try eating bland foods, staying hydrated, and avoiding spicy or fatty foods. Seek immediate medical attention if you experience severe pain, signs of dehydration, fever, or blood in stool.",
+            
+            // Conditions
+            'diabetes': "Diabetes is a condition where blood sugar levels are too high. Type 1 requires insulin, while Type 2 can often be managed with diet, exercise, and medication. Key management includes monitoring blood sugar, eating a balanced diet, regular exercise, and following your healthcare provider's treatment plan.",
+            
+            'hypertension': "High blood pressure often has no symptoms but increases risk of heart disease and stroke. Management includes reducing sodium intake, regular exercise, maintaining a healthy weight, limiting alcohol, managing stress, and taking prescribed medications as directed by your doctor.",
+            
+            'anxiety': "Anxiety is a normal response to stress, but persistent anxiety may require attention. Techniques like deep breathing, regular exercise, adequate sleep, and mindfulness can help. If anxiety interferes with daily life, consider speaking with a mental health professional.",
+            
+            // General health
+            'exercise': "Regular exercise provides numerous health benefits including improved cardiovascular health, stronger bones, better mood, and weight management. Aim for at least 150 minutes of moderate aerobic activity or 75 minutes of vigorous activity per week, plus strength training twice weekly.",
+            
+            'nutrition': "A balanced diet includes fruits, vegetables, whole grains, lean proteins, and healthy fats. Limit processed foods, excess sugar, and sodium. Stay hydrated with plenty of water. Consider consulting a registered dietitian for personalized nutrition advice.",
+            
+            'sleep': "Adults typically need 7-9 hours of quality sleep per night. Good sleep hygiene includes maintaining a consistent sleep schedule, creating a comfortable sleep environment, avoiding screens before bed, and limiting caffeine late in the day."
+        };
+
+        function findBestResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            // Check for exact matches first
+            for (const [key, response] of Object.entries(healthResponses)) {
+                if (message.includes(key)) {
+                    return response;
+                }
+            }
+            
+            // General responses for common question patterns
+            if (message.includes('what is') || message.includes('tell me about')) {
+                return "I'd be happy to help with health information! Could you be more specific about the condition, symptom, or health topic you'd like to know about?";
+            }
+            
+            if (message.includes('should i see a doctor') || message.includes('do i need medical attention')) {
+                return "If you're experiencing severe symptoms, persistent problems, or are concerned about your health, it's always best to consult with a healthcare professional. They can provide proper diagnosis and treatment recommendations based on your specific situation.";
+            }
+            
+            if (message.includes('emergency') || message.includes('urgent')) {
+                return "⚠️ If this is a medical emergency, please call emergency services (911 in the US) immediately or go to the nearest emergency room. For urgent but non-emergency situations, consider calling your doctor's office or an urgent care center.";
+            }
+            
+            // Default response
+            return "Thank you for your question! While I can provide general health information, I'd recommend discussing your specific concerns with a healthcare professional who can give you personalized advice based on your medical history and current situation. Is there a particular health topic you'd like general information about?";
+        }
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = isUser ? 'U' : '🏥';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            // Remove welcome message if it exists
+            const welcomeMessage = chatContainer.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'flex';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, true);
+            messageInput.value = '';
+            sendBtn.disabled = true;
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Simulate AI thinking time
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+
+            // Hide typing indicator and add response
+            hideTypingIndicator();
+            const response = findBestResponse(message);
+            addMessage(response);
+
+            sendBtn.disabled = false;
+            messageInput.focus();
+        }
+
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Focus on input when page loads
+        messageInput.focus();
+    </script>
+</body>
+</html>
